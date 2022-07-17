@@ -33,29 +33,36 @@ public class Commander implements CommanderInterface {
 	@Override
 	public boolean connect(String portName) throws NoSuchPortException, PortInUseException, UnsupportedCommOperationException, IOException {
 		System.setProperty("gnu.io.rxtx.SerialPorts", portName); // God damn it, why isn't the default to try the port the user wants?
-		
-        CommPortIdentifier portIdentifier = CommPortIdentifier.getPortIdentifier(portName);
-        if (portIdentifier.isCurrentlyOwned()) {
-            log.warning("Unable to open serial port "+portName+" as it's already opened");
-            return false;
-        }
-        
-        CommPort commPort = portIdentifier.open(this.getClass().getName(),2000);            
-        if (!(commPort instanceof SerialPort)) {
-        	log.severe("Can't open a port that's not a serial port "+portName+" is a "+commPort.getClass().getName());
-        	return false;
-        }
-        
-        serialPort = (SerialPort) commPort;
-        serialPort.setSerialPortParams(9600, SerialPort.DATABITS_8,SerialPort.STOPBITS_1,SerialPort.PARITY_NONE);
-        
-        commandId = 0;
-        
-        setLog(new File("/tmp/serial.log"));
-        reader = new Thread(new SerialReader());
-        reader.start();
-                
-        return true;
+
+		try {
+			CommPortIdentifier portIdentifier = CommPortIdentifier.getPortIdentifier(portName);
+			if (portIdentifier.isCurrentlyOwned()) {
+				log.warning("Unable to open serial port "+portName+" as it's already opened");
+				return false;
+			}
+
+			CommPort commPort = portIdentifier.open(this.getClass().getName(),2000);
+			if (!(commPort instanceof SerialPort)) {
+				log.severe("Can't open a port that's not a serial port "+portName+" is a "+commPort.getClass().getName());
+				return false;
+			}
+
+			serialPort = (SerialPort) commPort;
+			serialPort.setSerialPortParams(9600, SerialPort.DATABITS_8,SerialPort.STOPBITS_1,SerialPort.PARITY_NONE);
+
+			commandId = 0;
+
+			setLog(new File("/tmp/serial.log"));
+			reader = new Thread(new SerialReader());
+			reader.start();
+
+			return true;
+		} catch (NoSuchPortException e) {
+			String errorMsg = "Unable to access configured TTY port (" + portName + "). " +
+					"Is the cable plugged in?";
+			log.severe(errorMsg);
+			throw new RuntimeException(errorMsg, e);
+		}
     }
 	
 	public static final int WRAPPER_OVERHEAD = "wrap 12345678 12345678 12345678 ".length();
