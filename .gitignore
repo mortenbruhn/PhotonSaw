@@ -6,3 +6,12 @@
 *.map
 *.bin
 env
+.project
+.classpath
+target
+.idea
+*.log
+*.psjob
+out/
+*/out/
+

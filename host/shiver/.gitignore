@@ -1,3 +1,7 @@
 .project
 .classpath
 target
+.idea
+*.log
+*.psjob
+out/
