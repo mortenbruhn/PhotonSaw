@@ -39,7 +39,7 @@ public class JobManager {
 		if (jobStore == null) {
 			throw new RuntimeException("Missing jobStore option");
 		} else if (!jobStore.isDirectory()) {
-			throw new RuntimeException("The directory for storing jobs doesn't exist: "+jobStore);
+			throw new RuntimeException("The directory for storing jobs doesn't exist: "+jobStore.getAbsoluteFile());
 		}
 		
 		for (String fn : jobStore.list()) {
